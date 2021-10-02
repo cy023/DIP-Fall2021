@@ -4,10 +4,8 @@
  * @date    2021.10.01
  * @brief   bit map file format
  */
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include "bmp.h"
+#include "matrix_ops.h"
 
 void printHeader(BMP_t *bmp)
 {
@@ -65,21 +63,61 @@ void RGBToGrayLevel(BMP_t *bmp)
     }
 }
 
-void NegativeFilmTransfer(BMP_t *bmp)
+void NegativeFilmTransfer_GrayLevel(BMP_t *bmp)
 {
-    if (bmp->info_header.bits_per_pixel == 24) {
-        RGBToGrayLevel(bmp);
+    if (bmp->info_header.bits_per_pixel != 8) {
+        printf("[Warning] : Please check the image foramt.\n");
+        printf("In Function NegativeFilmTransfer_GrayLevel();\n");
+        return ;
     }
-    if (bmp->info_header.bits_per_pixel == 8) {
-        for (uint16_t i = 0; i < bmp->info_header.height; i++) {
-            for (uint16_t j = 0; j < bmp->info_header.width; j++) {
-                bmp->data[i * bmp->info_header.width + j] = ~bmp->data[i * bmp->info_header.width + j];
-            }
+    for (uint16_t i = 0; i < bmp->info_header.height; i++) {
+        for (uint16_t j = 0; j < bmp->info_header.width; j++) {
+            bmp->data[i * bmp->info_header.width + j] = 
+                ~bmp->data[i * bmp->info_header.width + j];
         }
-    }
-    else {
-        printf("Please check the image foramt.\n");
     } 
+}
+
+void InvertImage_GrayLevel(BMP_t *bmp)
+{
+    if (bmp->info_header.bits_per_pixel != 8) {
+        printf("[Warning] : Please check the image foramt.\n");
+        printf("In Function MirrorImage_GrayLevel();\n");
+        return ;
+    }
+    Invert(bmp->data, bmp->info_header.width, bmp->info_header.height);
+}
+
+void MirrorImage_GrayLevel(BMP_t *bmp)
+{
+    if (bmp->info_header.bits_per_pixel != 8) {
+        printf("[Warning] : Please check the image foramt.\n");
+        printf("In Function MirrorImage_GrayLevel();\n");
+        return ;
+    }
+    Mirror(bmp->data, bmp->info_header.width, bmp->info_header.height);
+}
+
+void Rotate90CCW_GrayLevel(BMP_t *bmp)
+{
+    if (bmp->info_header.bits_per_pixel != 8) {
+        printf("[Warning] : Please check the image foramt.\n");
+        printf("In Function Rotate90CCW_GrayLevel();\n");
+        return ;
+    }
+    Transpose(bmp->data, bmp->info_header.width, bmp->info_header.height);
+    Mirror(bmp->data, bmp->info_header.width, bmp->info_header.height);
+}
+
+void Rotate90CW_GrayLevel(BMP_t *bmp)
+{
+    if (bmp->info_header.bits_per_pixel != 8) {
+        printf("[Warning] : Please check the image foramt.\n");
+        printf("In Function Rotate90CW_GrayLevel();\n");
+        return ;
+    }
+    Mirror(bmp->data, bmp->info_header.width, bmp->info_header.height);
+    Transpose(bmp->data, bmp->info_header.width, bmp->info_header.height);
 }
 
 void printGrayHistogram(uint8_t *data, uint32_t dataLength)
