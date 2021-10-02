@@ -7,7 +7,9 @@
 #ifndef __BMP_H__
 #define __BMP_H__
 
+#include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define FILE_HEADER_SIZE    sizeof(BMP_FILE_HEADER_t)
 #define INFO_HEADER_SIZE    sizeof(BMP_INFO_HEADER_t)
@@ -49,7 +51,11 @@ typedef struct {
 
 void printHeader(BMP_t *bmp);
 void RGBToGrayLevel(BMP_t *bmp);
-void NegativeFilmTransfer(BMP_t *bmp);
+void NegativeFilmTransfer_GrayLevel(BMP_t *bmp);
+void InvertImage_GrayLevel(BMP_t *bmp);
+void MirrorImage_GrayLevel(BMP_t *bmp);
+void Rotate90CCW_GrayLevel(BMP_t *bmp);
+void Rotate90CW_GrayLevel(BMP_t *bmp);
 void printGrayHistogram(uint8_t *data, uint32_t dataLength);
 
 #endif /* __BMP_H__ */
