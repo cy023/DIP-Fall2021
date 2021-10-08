@@ -1,7 +1,7 @@
 /**
  * @file    bmp.h
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.10.01
+ * @date    2021.10.07
  * @brief   bit map file format
  */
 #ifndef __BMP_H__
@@ -45,7 +45,6 @@ typedef struct {
     BMP_FILE_HEADER_t file_header;
     BMP_INFO_HEADER_t info_header;
     uint8_t palette[PALETTE_SIZE];
-    uint32_t dataLength;
     uint8_t *data;
 } BMP_t;
 
@@ -57,5 +56,8 @@ void MirrorImage_GrayLevel(BMP_t *bmp);
 void Rotate90CCW_GrayLevel(BMP_t *bmp);
 void Rotate90CW_GrayLevel(BMP_t *bmp);
 void printGrayHistogram(uint8_t *data, uint32_t dataLength);
+
+void Subsampling_Half(BMP_t *bmp);
+void Upsampling_Double(BMP_t *bmp);
 
 #endif /* __BMP_H__ */

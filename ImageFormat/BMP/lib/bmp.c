@@ -1,7 +1,7 @@
 /**
  * @file    bmp.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.10.01
+ * @date    2021.10.07
  * @brief   bit map file format
  */
 #include "bmp.h"
@@ -32,31 +32,33 @@ void printHeader(BMP_t *bmp)
 
 void RGBToGrayLevel(BMP_t *bmp)
 {
-    uint32_t pixelSize = bmp->info_header.width * bmp->info_header.height;
+    uint32_t i, j;
+    uint32_t pixelSize;
 
-    bmp->dataLength = pixelSize * sizeof(uint8_t);
     bmp->file_header.offset = HEADER_SIZE + PALETTE_SIZE;
-    bmp->file_header.file_size = bmp->file_header.offset + pixelSize;
     bmp->info_header.bits_per_pixel = 8;
-    bmp->info_header.data_size = pixelSize * bmp->info_header.bits_per_pixel / 8;
+    pixelSize = bmp->info_header.width * bmp->info_header.height;
+    bmp->info_header.data_size = pixelSize * bmp->info_header.bits_per_pixel/8;
+    bmp->file_header.file_size = bmp->file_header.offset + \
+                                    bmp->info_header.data_size;
 
-    for (uint32_t i = 0; i < 256; i++) {    // 0xxRRGGBB
+    for (i = 0; i < 256; i++) {
         bmp->palette[(4 * i)]     = i;      // B
         bmp->palette[(4 * i) + 1] = i;      // G
         bmp->palette[(4 * i) + 2] = i;      // R
         bmp->palette[(4 * i) + 3] = 0;
     }
-
-    for (uint16_t i = 0; i < bmp->info_header.height; i++) {
-        for (uint16_t j = 0; j < bmp->info_header.width; j++) {
-            bmp->data[i * bmp->info_header.width + j] =                         \
-                (bmp->data[3 * (i * bmp->info_header.width + j)    ] * 0.114) + \
-                (bmp->data[3 * (i * bmp->info_header.width + j) + 1] * 0.587) + \
+    
+    for (i = 0; i < bmp->info_header.height; i++) {
+        for (j = 0; j < bmp->info_header.width; j++) {
+            bmp->data[i * bmp->info_header.width + j] =                        \
+                (bmp->data[3 * (i * bmp->info_header.width + j)    ] * 0.114) +\
+                (bmp->data[3 * (i * bmp->info_header.width + j) + 1] * 0.587) +\
                 (bmp->data[3 * (i * bmp->info_header.width + j) + 2] * 0.299);
         }
     }
 
-    bmp->data = (uint8_t *)realloc(bmp->data, bmp->dataLength);
+    bmp->data = (uint8_t *)realloc(bmp->data, bmp->info_header.data_size);
     if (!bmp->data) {
         perror("[ERROR] : realloc failed.\n");
         exit(1);
@@ -65,13 +67,15 @@ void RGBToGrayLevel(BMP_t *bmp)
 
 void NegativeFilmTransfer_GrayLevel(BMP_t *bmp)
 {
+    uint32_t i, j;
+
     if (bmp->info_header.bits_per_pixel != 8) {
         printf("[Warning] : Please check the image foramt.\n");
         printf("In Function NegativeFilmTransfer_GrayLevel();\n");
         return ;
     }
-    for (uint16_t i = 0; i < bmp->info_header.height; i++) {
-        for (uint16_t j = 0; j < bmp->info_header.width; j++) {
+    for (i = 0; i < bmp->info_header.height; i++) {
+        for (j = 0; j < bmp->info_header.width; j++) {
             bmp->data[i * bmp->info_header.width + j] = 
                 ~bmp->data[i * bmp->info_header.width + j];
         }
@@ -128,9 +132,9 @@ void printGrayHistogram(uint8_t *data, uint32_t dataLength)
     for (uint32_t i = 0; i < dataLength; i++) {
         buff[data[i]]++;
     }
-    // for (uint32_t i = 0; i < 256; i++) {
-    //     printf("%d ", buff[i]);
-    // }
+    for (uint32_t i = 0; i < 256; i++) {
+        printf("%d ", buff[i]);
+    }
     printf("\x1b[5m |");
     for (uint32_t i = 0; i < 256; i++) {
         printf("-");
@@ -150,4 +154,40 @@ void printGrayHistogram(uint8_t *data, uint32_t dataLength)
         printf("-");
     }
     printf("|\n\x1b[0;m");
+}
+
+void Subsampling_Half(BMP_t *bmp)
+{
+    uint32_t pixelSize, i, j;
+
+    bmp->info_header.width /= 2;
+    bmp->info_header.height /= 2;
+    pixelSize = bmp->info_header.width * bmp->info_header.height;
+    bmp->info_header.data_size = pixelSize * bmp->info_header.bits_per_pixel/8;
+    bmp->file_header.file_size = bmp->file_header.offset + \
+                                    bmp->info_header.data_size;
+
+    for (i = 0; i < 2 * pixelSize; i++) {
+        bmp->data[i] = (bmp->data[2*i] + bmp->data[2*i+1]) / 2;
+    }
+
+    for (i = 0; i < bmp->info_header.height; i++) {
+        for (j = 0; j < bmp->info_header.width; j++) {
+            bmp->data[i * bmp->info_header.width + j] = \
+                (bmp->data[(2*i) * bmp->info_header.width + j] / 2) + \
+                (bmp->data[(2*i+1) * bmp->info_header.width + j] / 2);
+        }
+    }
+
+    bmp->data = (uint8_t *)realloc(bmp->data, bmp->info_header.data_size);
+    if (!bmp->data) {
+        perror("[ERROR] : realloc failed.\n");
+        exit(1);
+    }
+}
+
+
+
+void Upsampling_Double(BMP_t *bmp){
+
 }
