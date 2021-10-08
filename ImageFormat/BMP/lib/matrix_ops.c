@@ -1,13 +1,13 @@
 /**
  * @file    matrix_ops.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.10.02
+ * @date    2021.10.07
  * @brief   Basic matrix operations.
  */
 #include "matrix_ops.h"
 
 // Note : The Image origin locates at bottom-left.
-void Transpose(uint8_t *data, uint16_t width, uint16_t height)
+void Transpose(uint8_t *data, uint32_t width, uint32_t height)
 {
     uint16_t i, j;
     for (i = 0; i < height; i++) {
@@ -19,7 +19,7 @@ void Transpose(uint8_t *data, uint16_t width, uint16_t height)
     }
 }
 
-void Invert(uint8_t *data, uint16_t width, uint16_t height)
+void Invert(uint8_t *data, uint32_t width, uint32_t height)
 {
     uint16_t i, j;
     for (i = 0; i < height / 2; i++) {
@@ -31,7 +31,7 @@ void Invert(uint8_t *data, uint16_t width, uint16_t height)
     }
 }
 
-void Mirror(uint8_t *data, uint16_t width, uint16_t height)
+void Mirror(uint8_t *data, uint32_t width, uint32_t height)
 {
     uint16_t i, j;
     for (i = 0; i < height; i++) {

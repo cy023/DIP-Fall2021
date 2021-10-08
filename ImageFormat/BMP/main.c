@@ -1,9 +1,9 @@
 /**
- * @file    main.h
+ * @file    main.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
  * @date    2021.10.01
  * @brief   Digital Image Processing Fall2021 in National Central University.
- *          Homework 1
+ *          Practice
  */
 #include <stdio.h>
 #include <stdint.h>
@@ -15,23 +15,25 @@ void saveGrayLevel_bmp(BMP_t *bmp, const char *path);
 int main()
 {
     uint16_t i, j;
+    uint32_t pixelSize;
     BMP_t bitmap;
 
     /**************************************************************************/
     /*             Read original bitmap file.                                 */
     /**************************************************************************/
-    FILE *fd1;
-    fd1 = fopen("./Image/lena.bmp", "rb");
-    if (!fd1) {
+    FILE *fd;
+    fd = fopen("./Image/lena.bmp", "rb");
+    if (!fd) {
         perror("[ERROR] : open lena.bmp failed.\n");
         exit(1);
     }
-    fread(&bitmap, sizeof(uint8_t), HEADER_SIZE, fd1);
+    fread(&bitmap, sizeof(uint8_t), HEADER_SIZE, fd);
     
-    bitmap.dataLength = 3 * bitmap.info_header.width * bitmap.info_header.height;
-    bitmap.data = (uint8_t *)calloc(bitmap.dataLength, sizeof(uint8_t));
-    fread(bitmap.data, sizeof(uint8_t), bitmap.dataLength, fd1);
-    fclose(fd1);
+    pixelSize = bitmap.info_header.width * bitmap.info_header.height;
+    bitmap.info_header.data_size = pixelSize * bitmap.info_header.bits_per_pixel/8;
+    bitmap.data = (uint8_t *)calloc(bitmap.info_header.data_size, sizeof(uint8_t));
+    fread(bitmap.data, sizeof(uint8_t), bitmap.info_header.data_size, fd);
+    fclose(fd);
 
     printHeader(&bitmap);
 
@@ -40,14 +42,14 @@ int main()
     /**************************************************************************/
     RGBToGrayLevel(&bitmap);
     printHeader(&bitmap);
-    printGrayHistogram(bitmap.data, bitmap.dataLength);
+    printGrayHistogram(bitmap.data, bitmap.info_header.data_size);
     saveGrayLevel_bmp(&bitmap, "./Image/gray.bmp");
 
     /**************************************************************************/
     /*             Transfer Gray Level bitmap file to negative film.          */
     /**************************************************************************/
     NegativeFilmTransfer_GrayLevel(&bitmap);
-    printGrayHistogram(bitmap.data, bitmap.dataLength);
+    printGrayHistogram(bitmap.data, bitmap.info_header.data_size);
     saveGrayLevel_bmp(&bitmap, "./Image/negfilm.bmp");
     NegativeFilmTransfer_GrayLevel(&bitmap); // Recover
     
@@ -73,6 +75,21 @@ int main()
     saveGrayLevel_bmp(&bitmap, "./Image/rotCCW90.bmp");
     Rotate90CW_GrayLevel(&bitmap); // Recover
 
+    /**************************************************************************/
+    /*             Subsampling bitmap file.                                   */
+    /**************************************************************************/
+    Subsampling_Half(&bitmap);
+    saveGrayLevel_bmp(&bitmap, "./Image/subsample256.bmp");
+
+    Subsampling_Half(&bitmap);
+    saveGrayLevel_bmp(&bitmap, "./Image/subsample128.bmp");
+
+    Subsampling_Half(&bitmap);
+    saveGrayLevel_bmp(&bitmap, "./Image/subsample64.bmp");
+
+    Subsampling_Half(&bitmap);
+    saveGrayLevel_bmp(&bitmap, "./Image/subsample32.bmp");
+
     free(bitmap.data);
     return 0;
 }
@@ -86,6 +103,6 @@ void saveGrayLevel_bmp(BMP_t *bmp, const char *path)
         exit(1);
     }
     fwrite(bmp, sizeof(uint8_t), HEADER_SIZE + PALETTE_SIZE, fd);
-    fwrite(bmp->data, sizeof(uint8_t), bmp->dataLength, fd);
+    fwrite(bmp->data, sizeof(uint8_t), bmp->info_header.data_size, fd);
     fclose(fd);
 }
