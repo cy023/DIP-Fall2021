@@ -22,9 +22,9 @@ int main()
     /*             Read original bitmap file.                                 */
     /**************************************************************************/
     FILE *fd;
-    fd = fopen("./Image/lena.bmp", "rb");
+    fd = fopen("./Image/building.bmp", "rb");
     if (!fd) {
-        perror("[ERROR] : open lena.bmp failed.\n");
+        printf("[ERROR] : open lena.bmp failed.\n");
         exit(1);
     }
     fread(&bitmap, sizeof(uint8_t), HEADER_SIZE, fd);
@@ -49,7 +49,6 @@ int main()
     /*             Transfer Gray Level bitmap file to negative film.          */
     /**************************************************************************/
     NegativeFilmTransfer_GrayLevel(&bitmap);
-    printGrayHistogram(bitmap.data, bitmap.info_header.data_size);
     saveGrayLevel_bmp(&bitmap, "./Image/negfilm.bmp");
     NegativeFilmTransfer_GrayLevel(&bitmap); // Recover
     
