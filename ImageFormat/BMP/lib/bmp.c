@@ -60,7 +60,7 @@ void RGBToGrayLevel(BMP_t *bmp)
 
     bmp->data = (uint8_t *)realloc(bmp->data, bmp->info_header.data_size);
     if (!bmp->data) {
-        perror("[ERROR] : realloc failed.\n");
+        printf("[ERROR] : realloc failed.\n");
         exit(1);
     }
 }
@@ -140,7 +140,7 @@ void printGrayHistogram(uint8_t *data, uint32_t dataLength)
         printf("-");
         max_level = buff[i] > max_level ? buff[i] : max_level;
     }
-    for (int32_t i = max_level; i >= 0; i-=50) {
+    for (int32_t i = max_level; i >= 0; i-=100) {
         printf("\x1b[5m|\n |\x1b[0;m");
         for (uint32_t j = 0; j < 256; j++) {
             if ((buff[j]) >= i)
@@ -181,7 +181,7 @@ void Subsampling_Half(BMP_t *bmp)
 
     bmp->data = (uint8_t *)realloc(bmp->data, bmp->info_header.data_size);
     if (!bmp->data) {
-        perror("[ERROR] : realloc failed.\n");
+        printf("[ERROR] : realloc failed.\n");
         exit(1);
     }
 }

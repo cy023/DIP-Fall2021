@@ -16,3 +16,4 @@ clean_image:
 
 clean:
 	rm main hw1
+	
