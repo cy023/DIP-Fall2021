@@ -12,7 +12,7 @@ tga
 gif -->
 
 ### BitMap File Header
-void printHeader(BMP_t *bmp);
+- void printHeader(BMP_t *bmp);
 
 ### Image Processing
 - void RGBToGrayLevel(BMP_t *bmp);
@@ -27,4 +27,5 @@ void printHeader(BMP_t *bmp);
 - Subsampling
 - Upsampling
 
-
+### Gray Level Transformations
+TODO: transfer by different curve and compare the histogram.
