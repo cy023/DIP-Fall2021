@@ -1,17 +1,17 @@
 /**
- * @file    test_noise.c
+ * @file    test_filter.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.11.30
+ * @date    2021.12.01
  * @brief   Digital Image Processing Fall2021 @ National Central University.
  *          Homework 2
  */
 #include "../lib/bmp.h"
 #include "../lib/fft.h"
-#include "../lib/noise.h"
+#include "../lib/filter.h"
 
 int main()
 {
-    uint64_t i, j;
+    uint16_t i, j;
     uint64_t pixelSize;
     BMP_t bitmap;
     uint8_t *origin_img;
@@ -44,44 +44,33 @@ int main()
     it.width  = bitmap.info_header.width;
 
     imgfft2(&it);
-    saveBmpFile(&bitmap, "./Image/_noise_fft.bmp");
+    saveBmpFile(&bitmap, "./Image/_filter_fft.bmp");
+
+    // /**************************************************************************/
+    // /*                               IFFT                                     */
+    // /**************************************************************************/
+    // imgifft2(&it);
+    // saveBmpFile(&bitmap, "./Image/_timeifft.bmp");
+
+    // /**************************************************************************/
+    // /*                            MSE & PSNR                                  */
+    // /**************************************************************************/
+    // printf("mse  = %lf\n",  mse(origin_img, bitmap.data, 256*256));
+    // printf("psnr = %lf dB\n", psnr(origin_img, bitmap.data, 256*256));
 
     /**************************************************************************/
-    /*                               IFFT                                     */
+    /*                            Low Pass Filter                             */
     /**************************************************************************/
+    lowpass(&it, 50);
+    saveBmpFile(&bitmap, "./Image/_filter_lp.bmp");
+
     imgifft2(&it);
-    saveBmpFile(&bitmap, "./Image/_noise_ifft.bmp");
+    saveBmpFile(&bitmap, "./Image/_filter_lp_ifft.bmp");
+
+    printf("mse  = %lf\n",  mse(origin_img, bitmap.data, 256*256));
+    printf("psnr = %lf dB\n", psnr(origin_img, bitmap.data, 256*256));
+
     free(freq);
-
-    /**************************************************************************/
-    /*                            MSE & PSNR                                  */
-    /**************************************************************************/
-    printf("mse  = %lf\n",  mse(origin_img, bitmap.data, 256*256));
-    printf("psnr = %lf dB\n", psnr(origin_img, bitmap.data, 256*256));
-
-    /**************************************************************************/
-    /*                            Uniform noise                               */
-    /**************************************************************************/
-    int16_t *noise;
-    noise = (int16_t *)calloc(256*256, sizeof(int16_t));
-
-    // NOTICE: 參數要一樣
-    uniform_noise(noise, 256*256, -20, 20);
-    statistics_noise(noise, 256*256, -20, 20);
-
-    for (i = 0; i < bitmap.info_header.data_size; i++) {
-        if ((int16_t)bitmap.data[i] + noise[i] < 0)
-            bitmap.data[i] = 0;
-        else if ((int16_t)bitmap.data[i] + noise[i] > 255)
-            bitmap.data[i] = 255;
-        else
-            bitmap.data[i] += noise[i];
-    }
-    saveBmpFile(&bitmap, "./Image/_noise_uniform.bmp");
-
-    printf("mse  = %lf\n",  mse(origin_img, bitmap.data, 256*256));
-    printf("psnr = %lf dB\n", psnr(origin_img, bitmap.data, 256*256));
-
     free(bitmap.data);
     return 0;
 }

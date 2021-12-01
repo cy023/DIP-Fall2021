@@ -40,4 +40,6 @@ void cTranspose(Complex_t *data, uint32_t width, uint32_t height);
 double mse(uint8_t *img1, uint8_t *img2, uint64_t size);
 double psnr(uint8_t *img1, uint8_t *img2, uint64_t size);
 
+void normfreq(Image_t *img);
+
 #endif /* __FFT_H__ */

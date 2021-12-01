@@ -5,10 +5,7 @@
  * @brief   Digital Image Processing Fall2021 @ National Central University.
  *          Homework 2
  */
-#include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-#include <stdlib.h>
 #include "../lib/fft.h"
 
 int main()

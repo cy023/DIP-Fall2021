@@ -3,6 +3,8 @@
         "complex.h": "c",
         "complex": "c",
         "numeric": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "fft.h": "c",
+        "noise.h": "c"
     }
 }

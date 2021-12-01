@@ -19,19 +19,11 @@ int main()
     /**************************************************************************/
     FILE *fd;
     fd = fopen("./Image/DIPpic1_gray.bmp", "rb");
-    if (!fd) {
-        perror("[ERROR] : open DIPpic1_gray.bmp failed.\n");
-        exit(1);
-    }
     fread(&bitmap, sizeof(uint8_t), HEADER_SIZE, fd);
 
     pixelSize = bitmap.info_header.width * bitmap.info_header.height;
     bitmap.info_header.data_size = pixelSize * bitmap.info_header.bits_per_pixel / 8;
     bitmap.data = (uint8_t *)calloc(bitmap.info_header.data_size, sizeof(uint8_t));
-    if (!bitmap.data) {
-        printf("[ERROR] : bitmap.data calloc failed.\n");
-        exit(1);
-    }
     fread(bitmap.palette, sizeof(uint8_t), PALETTE_SIZE, fd);
     fread(bitmap.data, sizeof(uint8_t), bitmap.info_header.data_size, fd);
     fclose(fd);
@@ -47,10 +39,6 @@ int main()
     /**************************************************************************/
     FILE *fd2;
     fd2 = fopen("./Image/_subsample.txt", "w");
-    if (!fd2) {
-        perror("[ERROR] : open _subsample.txt failed.\n");
-        exit(1);
-    }
     for (int i = 0; i < 256; i++) {
         for (int j = 0; j < 256; j++) {
             fprintf(fd2, "%d ", *(bitmap.data + 256 * i + j));

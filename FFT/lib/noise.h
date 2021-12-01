@@ -7,15 +7,16 @@
 #ifndef __NOISE_H__
 #define __NOISE_H__
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
 
-void uniform_noise(int16_t **noise, uint32_t width, uint32_t height, int16_t a, int16_t b);
-void gassian_noise(uint8_t *origin, uint8_t *addnoise);
-void saltpeppr_noise(uint8_t *origin, uint8_t *addnoise);
+void uniform_noise(int16_t *noise, uint64_t nsize, int16_t a, int16_t b);
+void gassian_noise(int16_t *noise, uint64_t nsize);
+void saltpeppr_noise(int16_t *noise, uint64_t nsize);
 
-void statistics_noise(int16_t **noise, uint32_t width, uint32_t height, int16_t lower, int16_t upper);
+void statistics_noise(int16_t *noise, uint64_t nsize, int16_t lower, int16_t upper);
 
 #endif /* __NOISE_H__ */

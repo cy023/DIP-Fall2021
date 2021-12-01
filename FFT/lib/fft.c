@@ -6,7 +6,6 @@
  */
 
 #include "fft.h"
-#include <math.h>
 
 void fft(int N, Complex_t *data, Complex_t *reserved)
 {
@@ -101,16 +100,8 @@ void imgfft2(Image_t *img)
     }
     cTranspose(img->freq, img->height, img->width);
 
-    for (i = 0; i < img->height; i++) {
-        for (j = 0; j < img->width; j++) {
-            if (20 * log10(c_abs(img->freq[i*img->width+j])) > 255) {
-                img->data[i*img->width+j] = 255;
-            }
-            else {
-                img->data[i*img->width+j] = (uint8_t)(20 * log10(c_abs(img->freq[i*img->width+j])));
-            }
-        }
-    }
+    normfreq(img);
+    
     free(tmprow);
     free(tmpcol);
 }
@@ -176,4 +167,17 @@ double mse(uint8_t *img1, uint8_t *img2, uint64_t size)
 double psnr(uint8_t *img1, uint8_t *img2, uint64_t size)
 {
     return 10 * log10(255*255 / mse(img1, img2, size));
+}
+
+void normfreq(Image_t *img)
+{
+    uint64_t i, j;
+    for (i = 0; i < img->height * img->width; i++) {
+        if (20 * log10(c_abs(img->freq[i])) > 255) {
+            img->data[i] = 255;
+        }
+        else {
+            img->data[i] = (uint8_t)(20 * log10(c_abs(img->freq[i])));
+        }
+    }
 }

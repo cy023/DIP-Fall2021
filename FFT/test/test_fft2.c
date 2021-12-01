@@ -7,7 +7,6 @@
  */
 #include "../lib/bmp.h"
 #include "../lib/fft.h"
-#include <math.h>
 
 int main()
 {
@@ -44,20 +43,19 @@ int main()
     it.width  = bitmap.info_header.width;
 
     imgfft2(&it);
-    saveBmpFile(&bitmap, "./Image/_won_.bmp");
+    saveBmpFile(&bitmap, "./Image/_freq.bmp");
 
     /**************************************************************************/
     /*                               IFFT                                     */
     /**************************************************************************/
     imgifft2(&it);
-    saveBmpFile(&bitmap, "./Image/_w_.bmp");
-
+    saveBmpFile(&bitmap, "./Image/_timeifft.bmp");
 
     /**************************************************************************/
     /*                            MSE & PSNR                                  */
     /**************************************************************************/
     printf("mse  = %lf\n",  mse(origin_img, bitmap.data, 256*256));
-    printf("psnr = %lf\n", psnr(origin_img, bitmap.data, 256*256));
+    printf("psnr = %lf dB\n", psnr(origin_img, bitmap.data, 256*256));
 
     free(freq);
     free(bitmap.data);

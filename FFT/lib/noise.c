@@ -2,50 +2,45 @@
  * @file    noise.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
  * @date    2021.11.26
- * @brief   bit map file format noise
+ * @brief   Noise Generator.
  */
 #include "noise.h"
-#include <stdio.h>
 
-void uniform_noise(int16_t **noise, uint32_t width, uint32_t height, int16_t a, int16_t b)
+void uniform_noise(int16_t *noise, uint64_t nsize, int16_t a, int16_t b)
 {
     srand(time(NULL));
     uint64_t i, j;
     int16_t min = a < b ? a : b;
     int16_t range = abs(b - a);
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            if (rand() % range == 0) {
-                noise[i][j] = (rand() % (range + 1)) + min;
-            }
+    for (i = 0; i < nsize; i++) {
+        if (rand() % range == 0) {
+            noise[i] = (rand() % (range + 1)) + min;
         }
     }
 }
 
-void gassian_noise(uint8_t *origin, uint8_t *addnoise)
+void gassian_noise(int16_t *noise, uint64_t nsize)
 {
     srand(time(NULL));
-
+    // TODO:
 }
 
-void saltpeppr_noise(uint8_t *origin, uint8_t *addnoise)
+void saltpeppr_noise(int16_t *noise, uint64_t nsize)
 {
     srand(time(NULL));
-
+    // TODO:
 }
 
-void statistics_noise(int16_t **noise, uint32_t width, uint32_t height, int16_t lower, int16_t upper)
+void statistics_noise(int16_t *noise, uint64_t nsize, int16_t lower, int16_t upper)
 {
-    uint32_t i, j, max_level = 0;
+    uint64_t i, j, max_level = 0;
     uint16_t *buff;
     uint16_t size = upper - lower + 1;
-    buff = (uint16_t *)malloc(size * sizeof(uint16_t));
+    buff = (uint16_t *)calloc(size, sizeof(uint16_t));
     
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            if (noise[i][j] != 0)
-                buff[noise[i][j] - lower]++;
-        }
+    for (i = 0; i < nsize; i++) {
+        if (noise[i] != 0)
+            buff[noise[i] - lower]++;
     }
     
     printf("\x1b[5m |");

@@ -13,6 +13,7 @@ test:
 	gcc -Werror -c lib/bmp.c -o bmp.o
 	gcc -Werror -c lib/fft.c -o fft.o
 	gcc -Werror -c lib/noise.c -o noise.o
+	gcc -Werror -c lib/filter.c -o filter.o
 
 	gcc -Werror -c test/test_fft.c -o test_fft.o
 	gcc matrix_ops.o bmp.o fft.o test_fft.o -lm -o test_fft.out
@@ -25,6 +26,9 @@ test:
 
 	gcc -Werror -c test/test_noise.c -o test_noise.o
 	gcc matrix_ops.o bmp.o fft.o noise.o test_noise.o -lm -o test_noise.out
+
+	gcc -Werror -c test/test_filter.c -o test_filter.o
+	gcc matrix_ops.o bmp.o fft.o filter.o test_filter.o -lm -o test_filter.out
 
 	rm *.o
 
