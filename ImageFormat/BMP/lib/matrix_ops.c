@@ -1,12 +1,13 @@
 /**
  * @file    matrix_ops.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.10.07
- * @brief   Basic matrix operations.
+ * @date    2021.10.24
+ * @brief   Basic matrix operations (for square matrix).
  */
 #include "matrix_ops.h"
 
-// Note : The Image origin locates at bottom-left.
+// TODO: m x n size matrix operation.
+// Note: The Image origin locates at bottom-left.
 void Transpose(uint8_t *data, uint32_t width, uint32_t height)
 {
     uint16_t i, j;

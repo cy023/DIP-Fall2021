@@ -1,11 +1,32 @@
 /**
  * @file    bmp.c
  * @author  cy023 (cyyang@g.ncu.edu.tw)
- * @date    2021.10.07
+ * @date    2021.10.24
  * @brief   bit map file format
  */
 #include "bmp.h"
 #include "matrix_ops.h"
+
+void saveBmpFile(BMP_t *bmp, const char *path)
+{
+    FILE *fd;
+    fd = fopen(path, "wb");
+    if (!fd) {
+        printf("[ERROR] : open %s bmp failed.\n", path);
+        exit(1);
+    }
+
+    if (bmp->file_header.offset == HEADER_SIZE + PALETTE_SIZE) {
+        fwrite(bmp, sizeof(uint8_t), HEADER_SIZE + PALETTE_SIZE, fd);
+        fwrite(bmp->data, sizeof(uint8_t), bmp->info_header.data_size, fd);
+    } else if (bmp->file_header.offset == HEADER_SIZE) {
+        fwrite(bmp, sizeof(uint8_t), HEADER_SIZE, fd);
+        fwrite(bmp->data, sizeof(uint8_t), bmp->info_header.data_size, fd);
+    } else {
+        printf("[Warning] : save bmp failed.\n");
+    }
+    fclose(fd);
+}
 
 void printHeader(BMP_t *bmp)
 {
@@ -48,7 +69,8 @@ void RGBToGrayLevel(BMP_t *bmp)
         bmp->palette[(4 * i) + 2] = i;      // R
         bmp->palette[(4 * i) + 3] = 0;
     }
-    
+
+    // B G R
     for (i = 0; i < bmp->info_header.height; i++) {
         for (j = 0; j < bmp->info_header.width; j++) {
             bmp->data[i * bmp->info_header.width + j] =                        \
@@ -57,7 +79,6 @@ void RGBToGrayLevel(BMP_t *bmp)
                 (bmp->data[3 * (i * bmp->info_header.width + j) + 2] * 0.299);
         }
     }
-
     bmp->data = (uint8_t *)realloc(bmp->data, bmp->info_header.data_size);
     if (!bmp->data) {
         printf("[ERROR] : realloc failed.\n");
@@ -124,36 +145,47 @@ void Rotate90CW_GrayLevel(BMP_t *bmp)
     Transpose(bmp->data, bmp->info_header.width, bmp->info_header.height);
 }
 
-void printGrayHistogram(uint8_t *data, uint32_t dataLength)
+void printGrayHistogram(uint8_t *data, uint32_t dataLength, const char *path)
 {
     uint32_t buff[256] = {0};
     uint32_t max_level = 0;
-
-    for (uint32_t i = 0; i < dataLength; i++) {
+    uint32_t i;
+    
+    for (i = 0; i < dataLength; i++) {
         buff[data[i]]++;
     }
-    for (uint32_t i = 0; i < 256; i++) {
-        printf("%d ", buff[i]);
+
+    FILE *fd;
+    fd = fopen(path, "w");
+    if (!fd) {
+        printf("[ERROR] : open %s bmp failed.\n", path);
+        exit(1);
     }
-    printf("\x1b[5m |");
-    for (uint32_t i = 0; i < 256; i++) {
-        printf("-");
-        max_level = buff[i] > max_level ? buff[i] : max_level;
+    
+    for (i = 0; i < 256; i++) {
+        fprintf(fd, "%d ", buff[i]);
     }
-    for (int32_t i = max_level; i >= 0; i-=100) {
-        printf("\x1b[5m|\n |\x1b[0;m");
-        for (uint32_t j = 0; j < 256; j++) {
-            if ((buff[j]) >= i)
-                printf("\x1b[;32;34m*\x1b[0;m");
-            else
-                printf(" ");
-        }
-    }
-    printf("\x1b[5m|\n |");
-    for (uint32_t i = 0; i < 256; i++) {
-        printf("-");
-    }
-    printf("|\n\x1b[0;m");
+    fclose(fd);
+
+    // printf("\x1b[5m |");
+    // for (uint32_t i = 0; i < 256; i++) {
+    //     printf("-");
+    //     max_level = buff[i] > max_level ? buff[i] : max_level;
+    // }
+    // for (int32_t i = max_level; i >= 0; i-=200) {
+    //     printf("\x1b[5m|\n |\x1b[0;m");
+    //     for (uint32_t j = 0; j < 256; j++) {
+    //         if ((buff[j]) >= i)
+    //             printf("\x1b[;32;34m*\x1b[0;m");
+    //         else
+    //             printf(" ");
+    //     }
+    // }
+    // printf("\x1b[5m|\n |");
+    // for (uint32_t i = 0; i < 256; i++) {
+    //     printf("-");
+    // }
+    // printf("|\n\x1b[0;m");
 }
 
 void Subsampling_Half(BMP_t *bmp)
@@ -163,19 +195,18 @@ void Subsampling_Half(BMP_t *bmp)
     bmp->info_header.width /= 2;
     bmp->info_header.height /= 2;
     pixelSize = bmp->info_header.width * bmp->info_header.height;
-    bmp->info_header.data_size = pixelSize * bmp->info_header.bits_per_pixel/8;
+    bmp->info_header.data_size = pixelSize * bmp->info_header.bits_per_pixel / 8;
     bmp->file_header.file_size = bmp->file_header.offset + \
                                     bmp->info_header.data_size;
 
-    for (i = 0; i < 2 * pixelSize; i++) {
-        bmp->data[i] = (bmp->data[2*i] + bmp->data[2*i+1]) / 2;
+    for (i = 0; i < 4 * pixelSize; i++) {
+        if (!(i % 2))
+            bmp->data[i/2] = bmp->data[i];
     }
-
-    for (i = 0; i < bmp->info_header.height; i++) {
-        for (j = 0; j < bmp->info_header.width; j++) {
-            bmp->data[i * bmp->info_header.width + j] = \
-                (bmp->data[(2*i) * bmp->info_header.width + j] / 2) + \
-                (bmp->data[(2*i+1) * bmp->info_header.width + j] / 2);
+    for (i = 0; i < 2 * bmp->info_header.height; i++) {
+        if (!(i % 2)) {
+            memcpy(&(bmp->data[(i/2) * bmp->info_header.height]), \
+                &(bmp->data[i * bmp->info_header.height]), bmp->info_header.width);
         }
     }
 
@@ -186,8 +217,5 @@ void Subsampling_Half(BMP_t *bmp)
     }
 }
 
-
-
-void Upsampling_Double(BMP_t *bmp){
-
-}
+// void Upsampling_Double(BMP_t *bmp){
+// }
