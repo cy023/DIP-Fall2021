@@ -13,9 +13,7 @@ void uniform_noise(int16_t *noise, uint64_t nsize, int16_t a, int16_t b)
     int16_t min = a < b ? a : b;
     int16_t range = abs(b - a);
     for (i = 0; i < nsize; i++) {
-        if (rand() % range == 0) {
-            noise[i] = (rand() % (range + 1)) + min;
-        }
+        noise[i] = (rand() % (range + 1)) + min;
     }
 }
 
@@ -37,18 +35,23 @@ void statistics_noise(int16_t *noise, uint64_t nsize, int16_t lower, int16_t upp
     uint16_t *buff;
     uint16_t size = upper - lower + 1;
     buff = (uint16_t *)calloc(size, sizeof(uint16_t));
-    
+    if (!buff) {
+        printf("[ERROR] : In noise.c, \
+            function statistics_noise buff calloc failed.\n");
+        exit(1);
+    }
+
     for (i = 0; i < nsize; i++) {
-        if (noise[i] != 0)
+        if (noise[i] >= lower)
             buff[noise[i] - lower]++;
     }
-    
+
     printf("\x1b[5m |");
     for (i = 0; i < size; i++) {
         printf("-");
         max_level = buff[i] > max_level ? buff[i] : max_level;
     }
-    for (int32_t i = max_level; i > 0; i--) {
+    for (int32_t i = max_level; i > 0; i-=500) {
         printf("\x1b[5m|\n |\x1b[0;m");
         for (j = 0; j < size; j++) {
             if ((buff[j]) >= i)
@@ -62,4 +65,6 @@ void statistics_noise(int16_t *noise, uint64_t nsize, int16_t lower, int16_t upp
         printf("-");
     }
     printf("|\n\x1b[0;m");
+    
+    free(buff);
 }

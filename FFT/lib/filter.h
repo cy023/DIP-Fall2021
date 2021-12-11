@@ -7,8 +7,6 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
 
-#include <stdint.h>
-#include <stdlib.h>
 #include "fft.h"
 
 void lowpass(Image_t *img, int16_t cutoff);

@@ -14,7 +14,7 @@ void lowpass(Image_t *img, int16_t cutoff)
     int16_t N = img->width;
     for (i = 0; i < img->height; i++) {
         for (j = 0; j < img->width; j++) {
-            if (sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) > cutoff) {
+            if (sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) > cutoff) {
                 img->freq[i * img->width + j].re = 0;
                 img->freq[i * img->width + j].im = 0;
             }
@@ -30,7 +30,7 @@ void highpass(Image_t *img, int16_t cutoff)
     int16_t N = img->width;
     for (i = 0; i < img->height; i++) {
         for (j = 0; j < img->width; j++) {
-            if (sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) < cutoff) {
+            if (sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) < cutoff) {
                 img->freq[i * img->width + j].re = 0;
                 img->freq[i * img->width + j].im = 0;
             }
@@ -46,8 +46,8 @@ void bandpass(Image_t *img, int16_t lowb, int16_t upb)
     int16_t N = img->width;
     for (i = 0; i < img->height; i++) {
         for (j = 0; j < img->width; j++) {
-            if (sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) < lowb || \
-                sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) > upb ) {
+            if (sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) < lowb || \
+                sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) > upb ) {
                 img->freq[i * img->width + j].re = 0;
                 img->freq[i * img->width + j].im = 0;
             }
@@ -63,8 +63,8 @@ void bandreject(Image_t *img, int16_t lowb, int16_t upb)
     int16_t N = img->width;
     for (i = 0; i < img->height; i++) {
         for (j = 0; j < img->width; j++) {
-            if (sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) > lowb && \
-                sqrt((i-M/2)*(i-M/2) + (j-N/2)*(j-N/2)) < upb ) {
+            if (sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) > lowb && \
+                sqrt(pow(i-M/2, 2) + pow(j-N/2, 2)) < upb ) {
                 img->freq[i * img->width + j].re = 0;
                 img->freq[i * img->width + j].im = 0;
             }

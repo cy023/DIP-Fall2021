@@ -22,9 +22,9 @@ int main()
     // test[6].re = 0;
     // test[7].re = 0;
     for (int i = 0; i < 8; i++) {
-        test[i].re = cos(2*PI*i/(double)8) + 5;
+        test[i].re = cos(2*PI*i/(double)8);
         // test[i].im = 0;
-        test[i].im = sin(2*PI*i/(double)8);
+        // test[i].im = sin(2*PI*i/(double)8);
     }
 
     printf("===== DATA =====\n");
