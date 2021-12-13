@@ -9,11 +9,9 @@
 
 void fft(int N, Complex_t *data, Complex_t *reserved)
 {
-    if (N == 1) {
-        return ;
-    }
+    if (N == 1) return ;
 
-    int i;
+    int32_t i;
     Complex_t w, z, *fe, *fo;
     
     fe = reserved;
@@ -41,11 +39,9 @@ void fft(int N, Complex_t *data, Complex_t *reserved)
 
 void ifft(int N, Complex_t *data, Complex_t *reserved)
 {
-    if (N == 1) {
-        return ;
-    }
+    if (N == 1) return ;
 
-    int i;
+    int32_t i;
     Complex_t w, z, *fe, *fo;
     
     fe = reserved;
@@ -127,6 +123,18 @@ void imgifft2(Image_t *img)
         for (j = 0; j < img->width; j++) {
             double factor = (i + j) % 2 ? -1 : 1;
             img->data[i*img->width+j] = img->freq[i*img->width+j].re * factor;
+        }
+    }
+    for (i = 0; i < img->height; i++) {
+        for (j = 0; j < img->width; j++) {
+            double factor = (i + j) % 2 ? -1 : 1;
+            double temp = img->freq[i*img->width+j].re * factor;
+            if (temp > 255)
+                img->data[i*img->width+j] = 255;
+            else if (temp < 0)
+                img->data[i*img->width+j] = 0;
+            else
+                img->data[i*img->width+j] = (uint8_t)temp;
         }
     }
     free(tmprow);
